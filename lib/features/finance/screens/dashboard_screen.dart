@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -95,7 +96,7 @@ class DashboardScreen extends StatelessWidget {
                   icon: Icons.camera_alt_outlined,
                   label: 'Scan',
                   onTap: () {
-                    // TODO: Navigate to receipt scanner
+                    context.go('/scan-receipt');
                   },
                 ),
                 _QuickAction(

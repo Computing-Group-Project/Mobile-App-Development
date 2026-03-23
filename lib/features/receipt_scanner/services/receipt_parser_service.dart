@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import '../models/receipt_data.dart';
 
 class ReceiptParserService {
