@@ -1,4 +1,4 @@
-# FundFlow
+# FundFlow (TEMP NAME)
 
 A personal finance management app for university students built with Flutter and Firebase. Features receipt scanning (ML Kit OCR), group expense splitting, AI spending coach, and analytics.
 
