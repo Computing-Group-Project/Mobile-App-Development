@@ -7,7 +7,7 @@ import '../models/receipt_data.dart';
 import '../../finance/screens/add_transaction_screen.dart';
 
 class ScanReceiptScreen extends StatefulWidget {
-  const ScanReceiptScreen({Key? key}) : super(key: key);
+  const ScanReceiptScreen({super.key});
 
   @override
   State<ScanReceiptScreen> createState() => _ScanReceiptScreenState();
@@ -58,7 +58,9 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
       if (photo == null) throw Exception('Failed to capture photo');
 
       // Step 2: Recognize text from photo
-      final rawText = await _textRecognitionService.recognizeTextFromFile(photo.path);
+      final rawText = await _textRecognitionService.recognizeTextFromFile(
+        photo.path,
+      );
       if (rawText.isEmpty) throw Exception('No text detected in image');
 
       // Step 3: Parse receipt data
@@ -71,9 +73,9 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
     } catch (e) {
       setState(() => _screenState = 'camera');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error processing receipt: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error processing receipt: $e')));
       }
     }
   }
@@ -90,9 +92,8 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
     // Navigate to Add Transaction screen with pre-filled data
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => AddTransactionScreen(
-          prefilledReceiptData: _scannedReceipt,
-        ),
+        builder: (context) =>
+            AddTransactionScreen(prefilledReceiptData: _scannedReceipt),
       ),
     );
   }
@@ -119,8 +120,8 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
       body: _screenState == 'camera'
           ? _buildCameraView(context)
           : _screenState == 'processing'
-              ? _buildProcessingView(context)
-              : _buildResultsView(context),
+          ? _buildProcessingView(context)
+          : _buildResultsView(context),
     );
   }
 
@@ -136,10 +137,7 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
           children: [
             CircularProgressIndicator(color: colorScheme.primary),
             const SizedBox(height: 16),
-            Text(
-              'Initializing camera...',
-              style: theme.textTheme.bodyLarge,
-            ),
+            Text('Initializing camera...', style: theme.textTheme.bodyLarge),
           ],
         ),
       );
@@ -149,7 +147,7 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
       children: [
         // Camera preview
         CameraPreview(_cameraService.controller!),
-        
+
         // Guide overlay
         Positioned.fill(
           child: Align(
@@ -183,9 +181,9 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
               children: [
                 Text(
                   'Position receipt within frame',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Colors.white,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: Colors.white),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
@@ -288,7 +286,9 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: _getConfidenceColor(receipt.confidence).withValues(alpha: 0.1),
+                color: _getConfidenceColor(
+                  receipt.confidence,
+                ).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: _getConfidenceColor(receipt.confidence),
@@ -390,10 +390,7 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
       color: colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: colorScheme.outlineVariant,
-          width: 1,
-        ),
+        side: BorderSide(color: colorScheme.outlineVariant, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -427,10 +424,7 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
                 onPressed: () {
                   // TODO: Navigate to edit screen
                 },
-                constraints: const BoxConstraints(
-                  minWidth: 40,
-                  minHeight: 40,
-                ),
+                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
               ),
           ],
         ),
@@ -450,8 +444,12 @@ class _ScanReceiptScreenState extends State<ScanReceiptScreen> {
           fontWeight: FontWeight.w600,
         ),
       ),
-      collapsedBackgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-      backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+      collapsedBackgroundColor: colorScheme.surfaceContainerHighest.withValues(
+        alpha: 0.5,
+      ),
+      backgroundColor: colorScheme.surfaceContainerHighest.withValues(
+        alpha: 0.5,
+      ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: colorScheme.outlineVariant),
@@ -504,8 +502,16 @@ class ReceiptFramePainter extends CustomPainter {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
 
     // Top-left
-    canvas.drawLine(rect.topLeft, Offset(rect.left + cornerLength, rect.top), paint);
-    canvas.drawLine(rect.topLeft, Offset(rect.left, rect.top + cornerLength), paint);
+    canvas.drawLine(
+      rect.topLeft,
+      Offset(rect.left + cornerLength, rect.top),
+      paint,
+    );
+    canvas.drawLine(
+      rect.topLeft,
+      Offset(rect.left, rect.top + cornerLength),
+      paint,
+    );
 
     // Top-right
     canvas.drawLine(
