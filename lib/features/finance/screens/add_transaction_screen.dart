@@ -5,7 +5,10 @@ import '../../receipt_scanner/models/receipt_data.dart';
 class AddTransactionScreen extends StatefulWidget {
   final ReceiptData? prefilledReceiptData;
 
-  const AddTransactionScreen({super.key, this.prefilledReceiptData});
+  const AddTransactionScreen({
+    super.key,
+    this.prefilledReceiptData,
+  });
 
   @override
   State<AddTransactionScreen> createState() => _AddTransactionScreenState();

@@ -5,6 +5,7 @@ import 'core/theme/app_theme.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/analytics/providers/analytics_provider.dart';
 import 'features/analytics/screens/analytics_screen.dart';
+import 'features/goals/providers/goals_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +23,7 @@ class FundFlowApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => AnalyticsProvider()),
+        ChangeNotifierProvider(create: (_) => GoalsProvider()),
       ],
       child: MaterialApp(
         title: 'FundFlow',
