@@ -7,7 +7,7 @@ import '../models/receipt_data.dart';
 import '../../finance/screens/add_transaction_screen.dart';
 
 class ScanReceiptScreen extends StatefulWidget {
-  const ScanReceiptScreen({Key? key}) : super(key: key);
+  const ScanReceiptScreen({super.key});
 
   @override
   State<ScanReceiptScreen> createState() => _ScanReceiptScreenState();

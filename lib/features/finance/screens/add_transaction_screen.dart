@@ -6,9 +6,9 @@ class AddTransactionScreen extends StatefulWidget {
   final ReceiptData? prefilledReceiptData;
 
   const AddTransactionScreen({
-    Key? key,
+    super.key,
     this.prefilledReceiptData,
-  }) : super(key: key);
+  });
 
   @override
   State<AddTransactionScreen> createState() => _AddTransactionScreenState();
@@ -220,7 +220,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: _selectedCategory,
+                initialValue: _selectedCategory,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.category),
                   border: OutlineInputBorder(
