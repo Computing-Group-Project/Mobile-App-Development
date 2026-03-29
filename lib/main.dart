@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
-import 'core/router/app_router.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/analytics/providers/analytics_provider.dart';
 import 'features/analytics/screens/analytics_screen.dart';

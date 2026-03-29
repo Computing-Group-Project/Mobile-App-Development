@@ -18,9 +18,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   void initState() {
     super.initState();
     // Load data when screen opens
-    Future.microtask(
-      () => context.read<AnalyticsProvider>().loadTransactions(),
-    );
+    final provider = context.read<AnalyticsProvider>();
+    Future.microtask(() => provider.loadTransactions());
   }
 
   @override

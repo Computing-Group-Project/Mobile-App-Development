@@ -43,7 +43,7 @@ class SpendingTrendLine extends StatelessWidget {
                       barWidth: 3,
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Colors.blue.withOpacity(0.15),
+                        color: Colors.blue.withValues(alpha: 0.15),
                       ),
                       dotData: FlDotData(show: false),
                     ),
@@ -55,8 +55,9 @@ class SpendingTrendLine extends StatelessWidget {
                         interval: (sortedDays.length / 4).ceilToDouble(),
                         getTitlesWidget: (value, meta) {
                           int index = value.toInt();
-                          if (index < 0 || index >= sortedDays.length)
+                          if (index < 0 || index >= sortedDays.length) {
                             return const SizedBox();
+                          }
                           return Text(
                             '${sortedDays[index].day}',
                             style: const TextStyle(fontSize: 10),
