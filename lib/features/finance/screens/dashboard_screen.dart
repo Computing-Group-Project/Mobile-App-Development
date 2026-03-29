@@ -88,9 +88,9 @@ class DashboardScreen extends StatelessWidget {
                 _QuickAction(
                   icon: Icons.add_circle_outline,
                   label: 'Add',
-                    onTap: () {
-                      context.push('/add-transaction');
-                    },
+                  onTap: () {
+                    context.push('/add-transaction');
+                  },
                 ),
                 _QuickAction(
                   icon: Icons.camera_alt_outlined,
@@ -100,20 +100,44 @@ class DashboardScreen extends StatelessWidget {
                   },
                 ),
                 _QuickAction(
-                  icon: Icons.group_outlined,
-                  label: 'Groups',
+                  icon: Icons.flag_outlined,
+                  label: 'Goals',
                   onTap: () {
-                    // TODO: Navigate to groups
+                    context.go('/goals');
                   },
                 ),
                 _QuickAction(
-                  icon: Icons.smart_toy_outlined,
-                  label: 'AI Coach',
+                  icon: Icons.favorite_border,
+                  label: 'Wishlist',
                   onTap: () {
-                    // TODO: Navigate to AI coach
+                    context.go('/wishlist');
                   },
                 ),
               ],
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Planning',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => context.go('/calendar'),
+                        icon: const Icon(Icons.calendar_month_outlined),
+                        label: const Text('Financial Calendar'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 24),
             // Recent transactions placeholder
@@ -225,16 +249,13 @@ class _BalanceChip extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
+                Text(label, style: Theme.of(context).textTheme.labelSmall),
                 Text(
                   amount,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: color,
-                      ),
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ),
                 ),
               ],
             ),
@@ -273,16 +294,10 @@ class _QuickAction extends StatelessWidget {
                 color: theme.colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: theme.colorScheme.onPrimaryContainer,
-              ),
+              child: Icon(icon, color: theme.colorScheme.onPrimaryContainer),
             ),
             const SizedBox(height: 6),
-            Text(
-              label,
-              style: theme.textTheme.labelMedium,
-            ),
+            Text(label, style: theme.textTheme.labelMedium),
           ],
         ),
       ),

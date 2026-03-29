@@ -74,11 +74,17 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   String _detectCategory(String merchantName) {
     final name = merchantName.toLowerCase();
 
-    if (name.contains('restaurant') || name.contains('cafe') || name.contains('pizza')) {
+    if (name.contains('restaurant') ||
+        name.contains('cafe') ||
+        name.contains('pizza')) {
       return 'Food & Drinks';
-    } else if (name.contains('uber') || name.contains('taxi') || name.contains('bus')) {
+    } else if (name.contains('uber') ||
+        name.contains('taxi') ||
+        name.contains('bus')) {
       return 'Transport';
-    } else if (name.contains('shop') || name.contains('store') || name.contains('mall')) {
+    } else if (name.contains('shop') ||
+        name.contains('store') ||
+        name.contains('mall')) {
       return 'Shopping';
     } else if (name.contains('cinema') || name.contains('movie')) {
       return 'Entertainment';
@@ -139,7 +145,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.prefilledReceiptData != null ? 'Confirm Receipt' : 'Add Transaction'),
+        title: Text(
+          widget.prefilledReceiptData != null
+              ? 'Confirm Receipt'
+              : 'Add Transaction',
+        ),
         centerTitle: true,
         elevation: 0,
         backgroundColor: colorScheme.surface,
@@ -161,7 +171,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               const SizedBox(height: 8),
               TextFormField(
                 controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Enter amount',
                   prefixText: 'LKR ',
@@ -252,7 +264,10 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               GestureDetector(
                 onTap: _selectDate,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(color: colorScheme.outline),
                     borderRadius: BorderRadius.circular(12),
