@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'receipt_parser_service.dart';
 
 void testReceiptParser() {
@@ -19,8 +20,8 @@ void testReceiptParser() {
   ''';
 
   final result = parser.parseReceipt(sampleReceipt);
-  print('Merchant: ${result.merchantName}');
-  print('Amount: ${result.totalAmount}');
-  print('Date: ${result.date}');
-  print('Confidence: ${(result.confidence * 100).toStringAsFixed(0)}%');
+  debugPrint('Merchant: ${result.merchantName}');
+  debugPrint('Amount: ${result.totalAmount}');
+  debugPrint('Date: ${result.date}');
+  debugPrint('Confidence: ${(result.confidence * 100).toStringAsFixed(0)}%');
 }
