@@ -89,7 +89,7 @@ class DashboardScreen extends StatelessWidget {
                   icon: Icons.add_circle_outline,
                   label: 'Add',
                   onTap: () {
-                    context.go('/add-transaction');
+                    context.push('/add-transaction');
                   },
                 ),
                 _QuickAction(
@@ -183,7 +183,7 @@ class DashboardScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          context.go('/add-transaction');
+          context.push('/add-transaction');
         },
         icon: const Icon(Icons.add),
         label: const Text('Add Transaction'),
