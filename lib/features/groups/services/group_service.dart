@@ -6,7 +6,6 @@ import '../models/settlement_model.dart';
 class GroupService {
   final _db = FirebaseFirestore.instance;
 
-  // ✅ Existing methods
 
   Stream<List<GroupModel>> streamUserGroups(String uid) {
     return _db
@@ -46,12 +45,9 @@ class GroupService {
     final expRef = groupRef.collection('expenses').doc();
 
     await _db.runTransaction((tx) async {
-      // ✅ STEP 1: READ FIRST
       final snap = await tx.get(groupRef);
-
       final current = (snap.data()?['totalExpenses'] ?? 0).toDouble();
 
-      // ✅ STEP 2: THEN WRITE
       tx.set(expRef, expense.toMap());
 
       tx.update(groupRef, {
@@ -59,8 +55,6 @@ class GroupService {
       });
     });
   }
-
-  // ✅ New Settlement methods
 
   Future<void> recordSettlement(Settlement settlement) async {
     final ref = _db

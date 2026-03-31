@@ -31,7 +31,7 @@ class Settlement {
       'toUid': toUid,
       'toName': toName,
       'amount': amount,
-      'createdAt': createdAt,
+      'createdAt': Timestamp.fromDate(createdAt),
       'isPartial': isPartial,
     };
   }
@@ -45,7 +45,7 @@ class Settlement {
       toUid: map['toUid'],
       toName: map['toName'],
       amount: (map['amount'] as num).toDouble(),
-      createdAt: (map['createdAt'] as Timestamp).toDate(), // ✅ Timestamp now recognized
+      createdAt: (map['createdAt'] as Timestamp).toDate(),
       isPartial: map['isPartial'] ?? false,
     );
   }

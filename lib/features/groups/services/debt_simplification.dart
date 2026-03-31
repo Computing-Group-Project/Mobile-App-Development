@@ -1,13 +1,13 @@
 import '../models/expense_model.dart';
 
-class Settlement {
+class DebtSettlement {
   final String from;
   final String fromName;
   final String to;
   final String toName;
   final double amount;
 
-  Settlement({
+  DebtSettlement({
     required this.from,
     required this.fromName,
     required this.to,
@@ -18,7 +18,7 @@ class Settlement {
 
 /// Simplify debts for a group based on all expenses.
 /// Returns a list of settlements {from, fromName, to, toName, amount}.
-List<Settlement> simplifyDebts(List<SharedExpense> expenses) {
+List<DebtSettlement> simplifyDebts(List<SharedExpense> expenses) {
   // Step 1: Compute net balances per member
   final Map<String, double> balances = {};
   final Map<String, String> names = {};
@@ -48,7 +48,7 @@ List<Settlement> simplifyDebts(List<SharedExpense> expenses) {
   });
 
   // Step 3: Greedy settlement
-  final settlements = <Settlement>[];
+  final settlements = <DebtSettlement>[];
 
   final creditorList = creditors.entries.toList();
   final debtorList = debtors.entries.toList();
@@ -60,7 +60,7 @@ List<Settlement> simplifyDebts(List<SharedExpense> expenses) {
 
     final amount = creditor.value < -debtor.value ? creditor.value : -debtor.value;
 
-    settlements.add(Settlement(
+    settlements.add(DebtSettlement(
       from: debtor.key,
       fromName: names[debtor.key] ?? '',
       to: creditor.key,

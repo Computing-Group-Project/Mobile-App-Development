@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/group_model.dart';
 import '../models/expense_model.dart';
-import '../models/settlement_model.dart' as firestore_model;
-import '../services/debt_simplification.dart' as algo;
+import '../models/settlement_model.dart';
+import '../services/debt_simplification.dart';
 import '../providers/group_provider.dart';
 
 class SettleUpScreen extends StatelessWidget {
@@ -27,7 +27,7 @@ class SettleUpScreen extends StatelessWidget {
           }
 
           final expenses = snapshot.data!;
-          final settlements = algo.simplifyDebts(expenses); // ✅ use algo alias
+          final settlements = simplifyDebts(expenses);
 
           if (settlements.isEmpty) {
             return const Center(child: Text('All debts are settled 🎉'));
@@ -52,9 +52,8 @@ class SettleUpScreen extends StatelessWidget {
                         return;
                       }
 
-                      // ✅ Use Firestore Settlement model when saving
-                      final settlement = firestore_model.Settlement(
-                        id: '', // Firestore will generate
+                      final settlement = Settlement(
+                        id: '',
                         groupId: group.id,
                         fromUid: s.from,
                         fromName: s.fromName,
