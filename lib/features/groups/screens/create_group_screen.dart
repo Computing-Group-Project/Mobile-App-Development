@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/group_provider.dart';
@@ -23,11 +24,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     members.add(GroupMember(uid: u.uid, name: "You", email: ""));
   }
 
+  // TODO: Replace with a Firestore user lookup by email to get the real Firebase UID.
   void addMember() {
     if (emailCtrl.text.isEmpty) return;
     setState(() {
       members.add(GroupMember(
-        uid: DateTime.now().toString(),
+        uid: emailCtrl.text,
         name: emailCtrl.text,
         email: emailCtrl.text,
       ));
@@ -37,7 +39,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   Future<void> create() async {
     await context.read<GroupProvider>().createGroup(nameCtrl.text, members);
-    Navigator.pop(context);
+    if (mounted) context.pop();
   }
 
   @override

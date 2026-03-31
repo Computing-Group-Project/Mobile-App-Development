@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../providers/group_provider.dart';
 import '../models/group_model.dart';
-import 'create_group_screen.dart';
-import 'group_dashboard_screen.dart';
 
 class GroupListScreen extends StatelessWidget {
   const GroupListScreen({super.key});
@@ -36,14 +35,7 @@ class GroupListScreen extends StatelessWidget {
                       style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text("${g.members.length} members"),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => GroupDashboardScreen(group: g),
-                      ),
-                    );
-                  },
+                  onTap: () => context.push('/group-dashboard', extra: g),
                 ),
               );
             },
@@ -51,10 +43,7 @@ class GroupListScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const CreateGroupScreen()),
-        ),
+        onPressed: () => context.push('/create-group'),
         child: const Icon(Icons.add),
       ),
     );

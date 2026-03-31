@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../models/group_model.dart';
 import '../providers/group_provider.dart';
-import 'add_shared_expense_screen.dart';
 import '../widgets/expense_tile.dart';
 
 class GroupDashboardScreen extends StatelessWidget {
@@ -32,10 +32,7 @@ class GroupDashboardScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => AddSharedExpenseScreen(group: group)),
-        ),
+        onPressed: () => context.push('/add-expense', extra: group),
         child: const Icon(Icons.add),
       ),
     );

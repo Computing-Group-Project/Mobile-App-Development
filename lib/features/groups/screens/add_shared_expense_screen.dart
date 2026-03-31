@@ -133,7 +133,7 @@ class _AddSharedExpenseScreenState extends State<AddSharedExpenseScreen> {
         title: _title.text.trim(),
         totalAmount: _total,
         paidBy: user.uid,
-        paidByName: "You",
+        paidByName: user.displayName ?? user.email ?? 'Unknown',
         splitType: _type,
         splits: _buildSplits(),
         createdAt: DateTime.now(),
@@ -141,16 +141,12 @@ class _AddSharedExpenseScreenState extends State<AddSharedExpenseScreen> {
 
       await context.read<GroupProvider>().addExpense(expense);
 
-      print("✅ Saved to Firestore");
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Saved successfully")),
       );
 
       Navigator.pop(context);
     } catch (e) {
-      print("❌ ERROR: $e");
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $e")),
       );
