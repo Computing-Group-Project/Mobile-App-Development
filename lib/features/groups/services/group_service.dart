@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/group_model.dart';
 import '../models/expense_model.dart';
+import '../models/settlement_model.dart';
 
 class GroupService {
   final _db = FirebaseFirestore.instance;
+
+  // ✅ Existing methods
 
   Stream<List<GroupModel>> streamUserGroups(String uid) {
     return _db
@@ -39,22 +42,48 @@ class GroupService {
   }
 
   Future<void> addExpense(SharedExpense expense) async {
-  final groupRef = _db.collection('groups').doc(expense.groupId);
-  final expRef = groupRef.collection('expenses').doc();
+    final groupRef = _db.collection('groups').doc(expense.groupId);
+    final expRef = groupRef.collection('expenses').doc();
 
-  await _db.runTransaction((tx) async {
-    // ✅ STEP 1: READ FIRST
-    final snap = await tx.get(groupRef);
+    await _db.runTransaction((tx) async {
+      // ✅ STEP 1: READ FIRST
+      final snap = await tx.get(groupRef);
 
-    final current =
-        (snap.data()?['totalExpenses'] ?? 0).toDouble();
+      final current = (snap.data()?['totalExpenses'] ?? 0).toDouble();
 
-    // ✅ STEP 2: THEN WRITE
-    tx.set(expRef, expense.toMap());
+      // ✅ STEP 2: THEN WRITE
+      tx.set(expRef, expense.toMap());
 
-    tx.update(groupRef, {
-      'totalExpenses': current + expense.totalAmount,
+      tx.update(groupRef, {
+        'totalExpenses': current + expense.totalAmount,
+      });
     });
-  });
-}
+  }
+
+  // ✅ New Settlement methods
+
+  Future<void> recordSettlement(Settlement settlement) async {
+    final ref = _db
+        .collection('groups')
+        .doc(settlement.groupId)
+        .collection('settlements')
+        .doc();
+
+    await ref.set({
+      ...settlement.toMap(),
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Stream<List<Settlement>> streamSettlements(String groupId) {
+    return _db
+        .collection('groups')
+        .doc(groupId)
+        .collection('settlements')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+        .map((doc) => Settlement.fromMap(doc.id, doc.data()))
+        .toList());
+  }
 }

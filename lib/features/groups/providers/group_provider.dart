@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/group_model.dart';
 import '../models/expense_model.dart';
+import '../models/settlement_model.dart';
 import '../services/group_service.dart';
 
 class GroupProvider extends ChangeNotifier {
@@ -13,12 +14,14 @@ class GroupProvider extends ChangeNotifier {
     return u.uid;
   }
 
+  // ✅ Existing streams
   Stream<List<GroupModel>> get groupsStream =>
       _service.streamUserGroups(uid);
 
   Stream<List<SharedExpense>> expensesStream(String groupId) =>
       _service.streamGroupExpenses(groupId);
 
+  // ✅ Existing actions
   Future<void> createGroup(String name, List<GroupMember> members) async {
     await _service.createGroup(
       name: name,
@@ -29,5 +32,14 @@ class GroupProvider extends ChangeNotifier {
 
   Future<void> addExpense(SharedExpense e) async {
     await _service.addExpense(e);
+  }
+
+  // ✅ New settlement methods
+  Future<void> recordSettlement(Settlement settlement) async {
+    await _service.recordSettlement(settlement);
+  }
+
+  Stream<List<Settlement>> settlementsStream(String groupId) {
+    return _service.streamSettlements(groupId);
   }
 }
