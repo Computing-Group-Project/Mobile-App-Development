@@ -56,6 +56,7 @@ class GroupService {
     });
   }
 
+
   Future<void> recordSettlement(Settlement settlement) async {
     final ref = _db
         .collection('groups')
