@@ -14,14 +14,15 @@ class GroupProvider extends ChangeNotifier {
     return u.uid;
   }
 
-  // ✅ Existing streams
   Stream<List<GroupModel>> get groupsStream =>
       _service.streamUserGroups(uid);
 
   Stream<List<SharedExpense>> expensesStream(String groupId) =>
       _service.streamGroupExpenses(groupId);
 
-  // ✅ Existing actions
+  Stream<List<Settlement>> settlementsStream(String groupId) =>
+      _service.streamSettlements(groupId);
+
   Future<void> createGroup(String name, List<GroupMember> members) async {
     await _service.createGroup(
       name: name,
@@ -34,12 +35,7 @@ class GroupProvider extends ChangeNotifier {
     await _service.addExpense(e);
   }
 
-  // ✅ New settlement methods
   Future<void> recordSettlement(Settlement settlement) async {
     await _service.recordSettlement(settlement);
-  }
-
-  Stream<List<Settlement>> settlementsStream(String groupId) {
-    return _service.streamSettlements(groupId);
   }
 }

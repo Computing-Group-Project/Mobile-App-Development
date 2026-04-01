@@ -36,20 +36,24 @@ class SettlementHistoryScreen extends StatelessWidget {
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: ListTile(
-                  leading: const Icon(Icons.receipt_long),
-                  title: Text('${s.fromName} → ${s.toName}'),
-                  subtitle: Text(
-                    'Amount: \$${s.amount.toStringAsFixed(2)}\n'
-                        'Date: ${s.createdAt.toLocal()}',
+                  leading: Icon(
+                    Icons.receipt_long,
+                    color: s.isPartial ? Colors.orange : Colors.green,
                   ),
-                  trailing: s.isPartial
-                      ? const Text(
-                    'Partial',
-                    style: TextStyle(color: Colors.orange),
-                  )
-                      : const Text(
-                    'Full',
-                    style: TextStyle(color: Colors.green),
+                  title: Text('${s.fromName} → ${s.toName}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Amount: \$${s.amount.toStringAsFixed(2)}'),
+                      Text('Date: ${s.createdAt.toLocal()}'),
+                    ],
+                  ),
+                  trailing: Text(
+                    s.isPartial ? 'Partial' : 'Full',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: s.isPartial ? Colors.orange : Colors.green,
+                    ),
                   ),
                 ),
               );
