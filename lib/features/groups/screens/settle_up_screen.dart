@@ -52,24 +52,50 @@ class SettleUpScreen extends StatelessWidget {
                         return;
                       }
 
-                      final settlement = Settlement(
-                        id: '',
-                        groupId: group.id,
-                        fromUid: s.from,
-                        fromName: s.fromName,
-                        toUid: s.to,
-                        toName: s.toName,
-                        amount: s.amount,
-                        createdAt: DateTime.now(),
-                        isPartial: false,
+                      // Prompt for partial amount
+                      final amountController = TextEditingController(text: s.amount.toString());
+                      final enteredAmount = await showDialog<double>(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: const Text('Enter amount to settle'),
+                          content: TextField(
+                            controller: amountController,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(labelText: 'Amount'),
+                          ),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                            TextButton(
+                              onPressed: () {
+                                final amt = double.tryParse(amountController.text) ?? s.amount;
+                                Navigator.pop(context, amt);
+                              },
+                              child: const Text('Confirm'),
+                            ),
+                          ],
+                        ),
                       );
 
-                      await provider.recordSettlement(settlement);
-
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Payment recorded: ${s.amount.toStringAsFixed(2)}')),
+                      if (enteredAmount != null) {
+                        final settlement = Settlement(
+                          id: '',
+                          groupId: group.id,
+                          fromUid: s.from,
+                          fromName: s.fromName,
+                          toUid: s.to,
+                          toName: s.toName,
+                          amount: enteredAmount,
+                          createdAt: DateTime.now(),
+                          isPartial: enteredAmount < s.amount,
                         );
+
+                        await provider.recordSettlement(settlement);
+
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Payment recorded: \$${enteredAmount.toStringAsFixed(2)}')),
+                          );
+                        }
                       }
                     },
                     child: const Text('Settle'),

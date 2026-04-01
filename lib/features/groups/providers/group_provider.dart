@@ -20,6 +20,9 @@ class GroupProvider extends ChangeNotifier {
   Stream<List<SharedExpense>> expensesStream(String groupId) =>
       _service.streamGroupExpenses(groupId);
 
+  Stream<List<Settlement>> settlementsStream(String groupId) =>
+      _service.streamSettlements(groupId);
+
   Future<void> createGroup(String name, List<GroupMember> members) async {
     await _service.createGroup(
       name: name,
@@ -34,9 +37,5 @@ class GroupProvider extends ChangeNotifier {
 
   Future<void> recordSettlement(Settlement settlement) async {
     await _service.recordSettlement(settlement);
-  }
-
-  Stream<List<Settlement>> settlementsStream(String groupId) {
-    return _service.streamSettlements(groupId);
   }
 }
