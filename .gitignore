@@ -49,6 +49,9 @@ android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 lib/firebase_options.dart
 
+# API keys
+lib/core/constants/secrets.dart
+
 # Environment
 .env
 .env.*
@@ -56,3 +59,10 @@ lib/firebase_options.dart
 # Claude Code
 .claude/
 CLAUDE.md
+
+# Unsupported platforms (Android only)
+ios/
+macos/
+linux/
+windows/
+web/
