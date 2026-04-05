@@ -18,13 +18,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   void initState() {
     super.initState();
     // Load data when screen opens
-    final provider = context.read<AnalyticsProvider>();
-    Future.microtask(() => provider.loadTransactions());
+    Future.microtask(
+      () => context.read<AnalyticsProvider>().loadTransactions(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<AnalyticsProvider>();
+    final provider = context
+        .watch<AnalyticsProvider>(); //get data from the Provider
 
     return Scaffold(
       appBar: AppBar(

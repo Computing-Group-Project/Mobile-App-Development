@@ -6,6 +6,7 @@ import 'features/auth/providers/auth_provider.dart';
 import 'features/analytics/providers/analytics_provider.dart';
 import 'features/analytics/screens/analytics_screen.dart';
 import 'features/goals/providers/goals_provider.dart';
+import 'features/auth/screens/login_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +31,7 @@ class FundFlowApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
-        home: const AnalyticsScreen(),
+        home: const LoginScreen(),
       ),
     );
   }
