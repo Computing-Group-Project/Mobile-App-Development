@@ -4,6 +4,33 @@ A personal finance management app for university students built with Flutter and
 
 **Module:** PUSL2023 — Mobile Application Development
 
+## Quick Start (Graders)
+
+The fastest way to run FundFlow is to install the pre-built APK — no Flutter or Firebase setup required.
+
+### Install the APK
+
+1. Copy `app-release.apk` (included in the submission) to your Android device or emulator
+2. On a **physical device**: go to Settings → Security → enable **Install from unknown sources**, then open the APK file to install
+3. On an **emulator**: drag and drop the APK onto the emulator window, or run:
+   ```bash
+   adb install app-release.apk
+   ```
+4. Open **FundFlow** from the app drawer
+
+### Demo Account
+
+Use the following credentials to log in with pre-existing data:
+
+| Field | Value |
+|---|---|
+| Email | `demo@fundflow.com` |
+| Password | `Demo1234!` |
+
+> The AI Coach feature requires a Gemini API key — this is baked into the APK and works out of the box. The key is also provided separately in the report.
+
+---
+
 ## Team
 
 | ID | Responsibility |
