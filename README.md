@@ -37,7 +37,7 @@ Log in as **John Doe** to see the full app experience. Log in as **Alice Smith**
 |---|---|
 | 10967227 | Receipt scanner, camera integration, ML Kit OCR parsing |
 | 10967228 | Personal finance module (transactions, budgets, recurring, net worth) |
-| 10967189 | Group creation, invite code system, shared expense logging |
+| 10967186 | Group creation, invite code system, shared expense logging |
 | 10967128 | Debt simplification algorithm, settle up flow, group activity feed |
 | 10967156 | Analytics screens, charts, spending insights |
 | 10967168 | Goals, wishlist, financial calendar |
