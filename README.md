@@ -23,9 +23,9 @@ The fastest way to run FundFlow is to install the pre-built APK — no Flutter o
 | Account | Email | Password | Purpose |
 |---|---|---|---|
 | John Doe | `jdoe@email.com` | `password` | **Primary account** — has transactions, budgets, goals, and group data |
-| A Smith | `asmith@email.com` | `password` | Secondary account — used to demonstrate group expense splitting between two users |
+| Alice Smith | `asmith@email.com` | `password` | Secondary account — used to demonstrate group expense splitting between two users |
 
-Log in as **John Doe** to see the full app experience. Log in as **A Smith** to test group interactions from a second user's perspective.
+Log in as **John Doe** to see the full app experience. Log in as **Alice Smith** to test group interactions from a second user's perspective.
 
 > The AI Coach feature requires a Gemini API key — this is baked into the APK and works out of the box. The key is also provided separately in the report.
 
@@ -58,11 +58,13 @@ Log in as **John Doe** to see the full app experience. Log in as **A Smith** to 
 
 ## Prerequisites
 
+> **Note:** The steps below are only needed if you want to build and run from source. If you are a grader, use the APK above instead — no setup required.
+
 - [Flutter SDK](https://docs.flutter.dev/get-started/install) (3.10+)
 - [Android Studio](https://developer.android.com/studio) with Android SDK
-- A Firebase project (see Firebase Setup below)
+- Access to the shared Firebase project (`fundflow-nsbm`) — contact the project owner to be added
 
-## Getting Started
+## Getting Started (Source)
 
 ### 1. Clone the repository
 
@@ -78,8 +80,6 @@ flutter pub get
 ```
 
 ### 3. Firebase Setup
-
-> **Important:** This project uses a shared Firebase project (`fundflow-nsbm`). You need to be granted access before running `flutterfire configure`. Contact the project owner to be added to the project.
 
 1. Install the [Firebase CLI](https://firebase.google.com/docs/cli) and [FlutterFire CLI](https://firebase.flutter.dev/docs/cli/):
    ```bash
@@ -160,10 +160,3 @@ flutter analyze              # Static analysis
 flutter build apk            # Build release APK
 ```
 
-## Git Workflow
-
-1. Create a feature branch from `main`: `git checkout -b feature/your-feature`
-2. Work in your assigned feature folder under `lib/features/`
-3. Commit with conventional prefixes: `feat:`, `fix:`, `chore:`, `docs:`
-4. Push and open a PR to `main`
-5. Get at least one review before merging
