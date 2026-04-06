@@ -17,14 +17,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
   void initState() {
     super.initState();
-    // Load data when screen opens
-    final provider = context.read<AnalyticsProvider>();
+    final provider = context.read<AnalyticsProvider>(); //read (just get data)
     Future.microtask(() => provider.loadTransactions());
+    // Load data when screen opens
   }
 
   @override
   Widget build(BuildContext context) {
+    //creates the whole UI
     final provider = context.watch<AnalyticsProvider>();
+    //here screen will update automatically when there is an update
 
     return Scaffold(
       appBar: AppBar(
@@ -39,7 +41,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Summary Cards ──────────────────────────────
                   Row(
                     children: [
                       _summaryCard(
@@ -57,19 +58,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // ── Insights ───────────────────────────────────
-                  const SpendingInsights(),
+                  const SpendingInsights(), //This is not a chart. This is that text based Insights.
                   const SizedBox(height: 16),
 
-                  // ── Pie Chart ──────────────────────────────────
                   const CategoryPieChart(),
                   const SizedBox(height: 16),
 
-                  // ── Bar Chart ──────────────────────────────────
                   const IncomeExpenseBarChart(),
                   const SizedBox(height: 16),
 
-                  // ── Line Graph ─────────────────────────────────
                   const SpendingTrendLine(),
                   const SizedBox(height: 16),
                 ],
@@ -79,6 +76,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   }
 
   Widget _summaryCard(String title, double amount, Color color) {
+    //resuable method that shows income and expences
     return Expanded(
       child: Card(
         elevation: 3,

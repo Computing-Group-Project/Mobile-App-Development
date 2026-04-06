@@ -6,7 +6,6 @@ import '../providers/analytics_provider.dart';
 class CategoryPieChart extends StatelessWidget {
   const CategoryPieChart({super.key});
 
-  // Colors for each slice
   static const List<Color> sliceColors = [
     Colors.blue,
     Colors.orange,
@@ -19,6 +18,7 @@ class CategoryPieChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AnalyticsProvider>();
+    // Updated data will automatically update since we use .watch
     final data = provider.spendingByCategory;
 
     if (data.isEmpty) return const Center(child: Text('No data yet'));

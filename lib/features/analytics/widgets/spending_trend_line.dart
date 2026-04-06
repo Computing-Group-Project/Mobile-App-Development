@@ -8,14 +8,18 @@ class SpendingTrendLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<AnalyticsProvider>();
+    final provider = context
+        .watch<AnalyticsProvider>(); //daily spending data from the provider
     final dailyData = provider.dailySpending;
 
     if (dailyData.isEmpty) return const Center(child: Text('No data yet'));
 
     final sortedDays = dailyData.keys.toList()..sort();
     final spots = List.generate(sortedDays.length, (i) {
-      return FlSpot(i.toDouble(), dailyData[sortedDays[i]]!);
+      return FlSpot(
+        i.toDouble(),
+        dailyData[sortedDays[i]]!,
+      ); //converts data for the line chart
     });
 
     return Card(
