@@ -1,31 +1,27 @@
 import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../notifications/services/fcm_service.dart';
 
-/// Authentication state management.
-///
-/// TODO: Wire up to Firebase Auth once google-services.json is configured.
-/// For now, provides a local auth state so navigation and UI can be developed.
 class AuthProvider extends ChangeNotifier {
-  String? _userId;
-  String? _email;
-  String? _displayName;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+
   bool _isLoading = false;
 
-  String? get userId => _userId;
-  String? get email => _email;
-  String? get displayName => _displayName;
   bool get isLoading => _isLoading;
-  bool get isAuthenticated => _userId != null;
+  User? get currentUser => _auth.currentUser;
+  String? get uid => currentUser?.uid;
+  String? get email => currentUser?.email;
+  String? get displayName => currentUser?.displayName;
+  bool get isAuthenticated => currentUser != null;
 
   Future<void> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
-
     try {
-      // TODO: Replace with Firebase Auth
-      await Future.delayed(const Duration(milliseconds: 500));
-      _userId = 'local-user';
-      _email = email;
-      _displayName = email.split('@').first;
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      await FcmService().init();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -35,13 +31,19 @@ class AuthProvider extends ChangeNotifier {
   Future<void> register(String email, String password, String name) async {
     _isLoading = true;
     notifyListeners();
-
     try {
-      // TODO: Replace with Firebase Auth + Firestore user doc
-      await Future.delayed(const Duration(milliseconds: 500));
-      _userId = 'local-user';
-      _email = email;
-      _displayName = name;
+      final cred = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      await cred.user?.updateDisplayName(name);
+      await _db.collection('users').doc(cred.user!.uid).set({
+        'uid': cred.user!.uid,
+        'name': name,
+        'email': email,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      await FcmService().init();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -49,9 +51,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    _userId = null;
-    _email = null;
-    _displayName = null;
+    await _auth.signOut();
     notifyListeners();
   }
 }

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 enum WishlistPriority { low, medium, high }
 
 class WishlistItem {
@@ -21,10 +23,37 @@ class WishlistItem {
       (targetPrice - savedAmount).clamp(0.0, double.infinity);
 
   double get progress {
-    if (targetPrice <= 0) {
-      return 0;
-    }
+    if (targetPrice <= 0) return 0;
     return (savedAmount / targetPrice).clamp(0.0, 1.0);
+  }
+
+  factory WishlistItem.fromDoc(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return WishlistItem(
+      id: doc.id,
+      name: data['name'] ?? '',
+      targetPrice: (data['targetPrice'] ?? 0).toDouble(),
+      savedAmount: (data['savedAmount'] ?? 0).toDouble(),
+      priority: WishlistPriority.values.firstWhere(
+        (p) => p.name == data['priority'],
+        orElse: () => WishlistPriority.medium,
+      ),
+      desiredBy: data['desiredBy'] != null
+          ? (data['desiredBy'] as Timestamp).toDate()
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toMap(String userId) {
+    return {
+      'userId': userId,
+      'name': name,
+      'targetPrice': targetPrice,
+      'savedAmount': savedAmount,
+      'priority': priority.name,
+      'desiredBy':
+          desiredBy != null ? Timestamp.fromDate(desiredBy!) : null,
+    };
   }
 
   WishlistItem copyWith({

@@ -1,14 +1,17 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import '../models/transaction_model.dart';
 import '../services/analytics_service.dart';
 
 class AnalyticsProvider extends ChangeNotifier {
   final AnalyticsService _service = AnalyticsService();
+  final _db = FirebaseFirestore.instance;
+  final _auth = FirebaseAuth.instance;
 
   List<Transaction> _transactions = [];
   bool _isLoading = false;
 
-  // ─── Getters ───────────────────────────────────────────────────────────────
   List<Transaction> get transactions => _transactions;
   bool get isLoading => _isLoading;
 
@@ -22,16 +25,26 @@ class AnalyticsProvider extends ChangeNotifier {
       _service.getDailySpending(_transactions);
   List<String> get insights => _service.getInsights(_transactions);
 
-  // ─── Load Fake Data (swap with Firestore later) ────────────────────────────
   Future<void> loadTransactions() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+
     _isLoading = true;
     notifyListeners();
 
-    // Simulating a small delay like a real fetch
-    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      final snapshot = await _db
+          .collection('transactions')
+          .where('userId', isEqualTo: uid)
+          .orderBy('date', descending: true)
+          .get();
 
-    _transactions = _service.getFakeTransactions();
-    _isLoading = false;
-    notifyListeners();
+      _transactions = snapshot.docs.map(Transaction.fromDoc).toList();
+    } catch (e) {
+      debugPrint('AnalyticsProvider.loadTransactions error: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }

@@ -38,10 +38,13 @@ dependencies:
 
   # Notifications
   flutter_local_notifications: any
+  timezone: any
 
   # Utilities
   intl: any
   uuid: any
+  http: any
+  flutter_markdown_plus: any
 
 dev_dependencies:
   flutter_test:

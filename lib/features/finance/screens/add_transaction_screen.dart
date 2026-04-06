@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../receipt_scanner/models/receipt_data.dart';
+import '../models/transaction.dart';
+import '../providers/transaction_provider.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final ReceiptData? prefilledReceiptData;
@@ -22,8 +25,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   DateTime _selectedDate = DateTime.now();
   String _selectedCategory = 'Food & Drinks';
+  String _selectedType = 'expense';
 
-  final List<String> _categories = [
+  static const List<String> _expenseCategories = [
     'Food & Drinks',
     'Transport',
     'Shopping',
@@ -36,6 +40,20 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     'Subscriptions',
     'Other',
   ];
+
+  static const List<String> _incomeCategories = [
+    'Salary',
+    'Freelance',
+    'Scholarship',
+    'Part-time Job',
+    'Gift',
+    'Business',
+    'Investment',
+    'Other',
+  ];
+
+  List<String> get _categories =>
+      _selectedType == 'income' ? _incomeCategories : _expenseCategories;
 
   @override
   void initState() {
@@ -113,21 +131,23 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     }
   }
 
-  void _handleAddTransaction() {
-    if (_formKey.currentState!.validate()) {
-      // Create transaction object
-      final transaction = {
-        'amount': double.parse(_amountController.text),
-        'merchant': _merchantController.text,
-        'category': _selectedCategory,
-        'description': _descriptionController.text,
-        'date': _selectedDate,
-        'timestamp': DateTime.now(),
-      };
+  Future<void> _handleAddTransaction() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      // TODO: Save to Firestore
-      Navigator.of(context).pop(transaction);
-    }
+    final transaction = Transaction(
+      id: '',
+      title: _merchantController.text.trim(),
+      amount: double.parse(_amountController.text),
+      date: _selectedDate,
+      category: _selectedCategory,
+      type: _selectedType,
+      notes: _descriptionController.text.trim().isEmpty
+          ? null
+          : _descriptionController.text.trim(),
+    );
+
+    await context.read<TransactionProvider>().addTransaction(transaction);
+    if (mounted) Navigator.of(context).pop();
   }
 
   @override
@@ -151,8 +171,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               : 'Add Transaction',
         ),
         centerTitle: true,
-        elevation: 0,
-        backgroundColor: colorScheme.surface,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -176,8 +194,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 ),
                 decoration: InputDecoration(
                   hintText: 'Enter amount',
-                  prefixText: 'LKR ',
-                  prefixIcon: const Icon(Icons.currency_rupee),
+                  prefix: const Text('LKR ', style: TextStyle(fontSize: 14)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -194,9 +211,41 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Merchant field
+              // Type toggle
+              Row(
+                children: [
+                  Expanded(
+                    child: ChoiceChip(
+                      label: const Text('Expense'),
+                      selected: _selectedType == 'expense',
+                      selectedColor:
+                          Colors.red.withValues(alpha: 0.15),
+                      onSelected: (_) => setState(() {
+                        _selectedType = 'expense';
+                        _selectedCategory = _expenseCategories.first;
+                      }),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ChoiceChip(
+                      label: const Text('Income'),
+                      selected: _selectedType == 'income',
+                      selectedColor:
+                          Colors.green.withValues(alpha: 0.15),
+                      onSelected: (_) => setState(() {
+                        _selectedType = 'income';
+                        _selectedCategory = _incomeCategories.first;
+                      }),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // Title field (context-aware)
               Text(
-                'Merchant / Store Name',
+                _selectedType == 'income' ? 'Income Source' : 'Merchant / Store',
                 style: theme.textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -205,19 +254,25 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               TextFormField(
                 controller: _merchantController,
                 decoration: InputDecoration(
-                  hintText: 'e.g., Starbucks',
-                  prefixIcon: const Icon(Icons.store),
+                  hintText: _selectedType == 'income'
+                      ? 'e.g., Part-time job, Scholarship'
+                      : 'e.g., Starbucks',
+                  prefixIcon: Icon(
+                    _selectedType == 'income'
+                        ? Icons.account_balance_wallet_outlined
+                        : Icons.store_outlined,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter merchant name';
+                    return _selectedType == 'income'
+                        ? 'Please enter an income source'
+                        : 'Please enter merchant name';
                   }
-                  if (value.length < 2) {
-                    return 'Merchant name too short';
-                  }
+                  if (value.length < 2) return 'Name too short';
                   return null;
                 },
               ),
@@ -225,16 +280,21 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
               // Category dropdown
               Text(
-                'Category',
+                _selectedType == 'income' ? 'Income Type' : 'Category',
                 style: theme.textTheme.labelLarge?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                initialValue: _selectedCategory,
+                key: ValueKey(_selectedType),
+                value: _selectedCategory,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.category),
+                  prefixIcon: Icon(
+                    _selectedType == 'income'
+                        ? Icons.payments_outlined
+                        : Icons.category_outlined,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -246,9 +306,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   );
                 }).toList(),
                 onChanged: (value) {
-                  if (value != null) {
-                    setState(() => _selectedCategory = value);
-                  }
+                  if (value != null) setState(() => _selectedCategory = value);
                 },
               ),
               const SizedBox(height: 24),

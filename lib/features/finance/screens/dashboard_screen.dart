@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../models/transaction.dart';
+import '../providers/transaction_provider.dart';
+import '../../../features/settings/providers/theme_provider.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -12,17 +17,26 @@ class DashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('FundFlow'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              // TODO: Navigate to notifications
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, _) {
+              final isDark = themeProvider.themeMode == ThemeMode.dark ||
+                  (themeProvider.themeMode == ThemeMode.system &&
+                      MediaQuery.platformBrightnessOf(context) ==
+                          Brightness.dark);
+              return IconButton(
+                icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
+                tooltip: isDark ? 'Light mode' : 'Dark mode',
+                onPressed: () => themeProvider.setThemeMode(isDark ? 'light' : 'dark'),
+              );
             },
           ),
           IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () => context.push('/notifications'),
+          ),
+          IconButton(
             icon: const Icon(Icons.settings_outlined),
-            onPressed: () {
-              // TODO: Navigate to settings
-            },
+            onPressed: () => context.push('/settings'),
           ),
         ],
       ),
@@ -32,46 +46,68 @@ class DashboardScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Balance overview card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Net Balance',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'LKR 0.00',
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
+            StreamBuilder<List<Transaction>>(
+              stream: context
+                  .read<TransactionProvider>()
+                  .transactionsStream,
+              builder: (context, snapshot) {
+                final txns = snapshot.data ?? [];
+                final currency = NumberFormat.currency(
+                  locale: 'en_LK',
+                  symbol: 'LKR ',
+                  decimalDigits: 0,
+                );
+                final income = txns
+                    .where((t) => t.type == 'income')
+                    .fold(0.0, (s, t) => s + t.amount);
+                final expense = txns
+                    .where((t) => t.type == 'expense')
+                    .fold(0.0, (s, t) => s + t.amount);
+                final balance = income - expense;
+
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _BalanceChip(
-                          label: 'Income',
-                          amount: 'LKR 0.00',
-                          color: Colors.green,
-                          icon: Icons.arrow_upward,
+                        Text(
+                          'Net Balance',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                        const SizedBox(width: 12),
-                        _BalanceChip(
-                          label: 'Expenses',
-                          amount: 'LKR 0.00',
-                          color: Colors.red,
-                          icon: Icons.arrow_downward,
+                        const SizedBox(height: 8),
+                        Text(
+                          currency.format(balance),
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: balance >= 0 ? Colors.green : Colors.red,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            _BalanceChip(
+                              label: 'Income',
+                              amount: currency.format(income),
+                              color: Colors.green,
+                              icon: Icons.north_east_rounded,
+                            ),
+                            const SizedBox(width: 12),
+                            _BalanceChip(
+                              label: 'Expenses',
+                              amount: currency.format(expense),
+                              color: Colors.red,
+                              icon: Icons.south_east_rounded,
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 24),
             // Quick actions
@@ -96,21 +132,21 @@ class DashboardScreen extends StatelessWidget {
                   icon: Icons.camera_alt_outlined,
                   label: 'Scan',
                   onTap: () {
-                    context.go('/scan-receipt');
+                    context.push('/scan-receipt');
                   },
                 ),
                 _QuickAction(
                   icon: Icons.flag_outlined,
                   label: 'Goals',
                   onTap: () {
-                    context.go('/goals');
+                    context.push('/goals');
                   },
                 ),
                 _QuickAction(
                   icon: Icons.favorite_border,
                   label: 'Wishlist',
                   onTap: () {
-                    context.go('/wishlist');
+                    context.push('/wishlist');
                   },
                 ),
               ],
@@ -130,9 +166,17 @@ class DashboardScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () => context.go('/calendar'),
+                        onPressed: () => context.push('/budgets'),
+                        icon: const Icon(Icons.account_balance_wallet_outlined),
+                        label: const Text('Budgets'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => context.push('/calendar'),
                         icon: const Icon(Icons.calendar_month_outlined),
-                        label: const Text('Financial Calendar'),
+                        label: const Text('Calendar'),
                       ),
                     ),
                   ],
@@ -140,81 +184,105 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            // Recent transactions placeholder
-            Text(
-              'Recent Transactions',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.receipt_long_outlined,
-                        size: 48,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'No transactions yet',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Tap + to add your first transaction',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
+            // Recent transactions
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Recent Transactions',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
+                TextButton(
+                  onPressed: () => context.push('/transactions'),
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  child: const Text('View all'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            StreamBuilder<List<Transaction>>(
+              stream: context
+                  .read<TransactionProvider>()
+                  .transactionsStream,
+              builder: (context, snapshot) {
+                final txns = (snapshot.data ?? []).take(5).toList();
+                if (txns.isEmpty) {
+                  return Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.receipt_long_outlined,
+                              size: 48,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'No transactions yet',
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Tap + to add your first transaction',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                final currency = NumberFormat.currency(
+                  locale: 'en_LK',
+                  symbol: 'LKR ',
+                  decimalDigits: 0,
+                );
+                return Card(
+                  child: Column(
+                    children: txns.map((t) {
+                      final isIncome = t.type == 'income';
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: (isIncome
+                                  ? Colors.green
+                                  : Colors.red)
+                              .withValues(alpha: 0.15),
+                          child: Icon(
+                            isIncome
+                                ? Icons.north_east_rounded
+                                : Icons.south_east_rounded,
+                            color:
+                                isIncome ? Colors.green : Colors.red,
+                            size: 18,
+                          ),
+                        ),
+                        title: Text(t.title),
+                        subtitle: Text(t.category),
+                        trailing: Text(
+                          currency.format(t.amount),
+                          style: TextStyle(
+                            color: isIncome ? Colors.green : Colors.red,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          context.push('/add-transaction');
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Add Transaction'),
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: 0,
-        onDestinationSelected: (index) {
-          // TODO: Handle navigation
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
-            label: 'Transactions',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: 'Analytics',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.group_outlined),
-            selectedIcon: Icon(Icons.group),
-            label: 'Groups',
-          ),
-        ],
       ),
     );
   }

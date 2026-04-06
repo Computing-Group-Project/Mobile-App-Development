@@ -1,4 +1,5 @@
 import '../models/expense_model.dart';
+import '../models/settlement_model.dart';
 
 class DebtSettlement {
   final String from;
@@ -16,23 +17,34 @@ class DebtSettlement {
   });
 }
 
-/// Simplify debts for a group based on all expenses.
-/// Returns a list of settlements {from, fromName, to, toName, amount}.
-List<DebtSettlement> simplifyDebts(List<SharedExpense> expenses) {
-  // Step 1: Compute net balances per member
+/// Simplify debts for a group based on all expenses and recorded settlements.
+/// Returns a list of outstanding debts after accounting for payments already made.
+List<DebtSettlement> simplifyDebts(
+  List<SharedExpense> expenses,
+  List<Settlement> settlements,
+) {
+  // Step 1: Compute net balances per member from expenses
   final Map<String, double> balances = {};
   final Map<String, String> names = {};
 
   for (final expense in expenses) {
-    // Track payer
     balances[expense.paidBy] = (balances[expense.paidBy] ?? 0) + expense.totalAmount;
     names[expense.paidBy] = expense.paidByName;
 
-    // Track splits
     for (final split in expense.splits) {
       balances[split.uid] = (balances[split.uid] ?? 0) - split.amount;
       names[split.uid] = split.name;
     }
+  }
+
+  // Step 2: Apply recorded settlements to reduce outstanding balances
+  for (final s in settlements) {
+    // Debtor paid — their negative balance goes up
+    balances[s.fromUid] = (balances[s.fromUid] ?? 0) + s.amount;
+    if (s.fromName.isNotEmpty) names[s.fromUid] = s.fromName;
+    // Creditor received — their positive balance goes down
+    balances[s.toUid] = (balances[s.toUid] ?? 0) - s.amount;
+    if (s.toName.isNotEmpty) names[s.toUid] = s.toName;
   }
 
   // Step 2: Separate creditors (positive) and debtors (negative)
@@ -48,7 +60,7 @@ List<DebtSettlement> simplifyDebts(List<SharedExpense> expenses) {
   });
 
   // Step 3: Greedy settlement
-  final settlements = <DebtSettlement>[];
+  final result = <DebtSettlement>[];
 
   final creditorList = creditors.entries.toList();
   final debtorList = debtors.entries.toList();
@@ -60,7 +72,7 @@ List<DebtSettlement> simplifyDebts(List<SharedExpense> expenses) {
 
     final amount = creditor.value < -debtor.value ? creditor.value : -debtor.value;
 
-    settlements.add(DebtSettlement(
+    result.add(DebtSettlement(
       from: debtor.key,
       fromName: names[debtor.key] ?? '',
       to: creditor.key,
@@ -75,5 +87,5 @@ List<DebtSettlement> simplifyDebts(List<SharedExpense> expenses) {
     if (debtorList[j].value >= -0.01) j++;
   }
 
-  return settlements;
+  return result;
 }

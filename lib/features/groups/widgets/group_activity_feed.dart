@@ -34,9 +34,9 @@ class GroupActivityFeed extends StatelessWidget {
               activities.add(_ActivityItem(
                 createdAt: e.createdAt,
                 description:
-                '${e.paidByName} added expense "${e.title}" (\$${e.totalAmount.toStringAsFixed(2)})',
+                '${e.paidByName} added "${e.title}" — LKR ${e.totalAmount.toStringAsFixed(0)}',
                 icon: Icons.shopping_cart,
-                color: Colors.blue,
+                color: Theme.of(context).colorScheme.primary,
               ));
             }
 
@@ -44,7 +44,7 @@ class GroupActivityFeed extends StatelessWidget {
               activities.add(_ActivityItem(
                 createdAt: s.createdAt,
                 description:
-                '${s.fromName} settled \$${s.amount.toStringAsFixed(2)} to ${s.toName}',
+                '${s.fromName} settled LKR ${s.amount.toStringAsFixed(0)} to ${s.toName}',
                 icon: Icons.receipt_long,
                 color: s.isPartial ? Colors.orange : Colors.green,
               ));

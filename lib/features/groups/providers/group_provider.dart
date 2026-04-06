@@ -14,8 +14,7 @@ class GroupProvider extends ChangeNotifier {
     return u.uid;
   }
 
-  Stream<List<GroupModel>> get groupsStream =>
-      _service.streamUserGroups(uid);
+  Stream<List<GroupModel>> get groupsStream => _service.streamUserGroups(uid);
 
   Stream<List<SharedExpense>> expensesStream(String groupId) =>
       _service.streamGroupExpenses(groupId);
@@ -23,8 +22,8 @@ class GroupProvider extends ChangeNotifier {
   Stream<List<Settlement>> settlementsStream(String groupId) =>
       _service.streamSettlements(groupId);
 
-  Future<void> createGroup(String name, List<GroupMember> members) async {
-    await _service.createGroup(
+  Future<String> createGroup(String name, List<GroupMember> members) async {
+    return await _service.createGroup(
       name: name,
       createdBy: uid,
       members: members,
@@ -37,5 +36,13 @@ class GroupProvider extends ChangeNotifier {
 
   Future<void> recordSettlement(Settlement settlement) async {
     await _service.recordSettlement(settlement);
+  }
+
+  Future<void> leaveGroup(String groupId) async {
+    await _service.leaveGroup(groupId, uid);
+  }
+
+  Future<void> deleteGroup(String groupId) async {
+    await _service.deleteGroup(groupId);
   }
 }

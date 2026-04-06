@@ -23,6 +23,9 @@ class _FinancialCalendarScreenState extends State<FinancialCalendarScreen> {
     final now = DateTime.now();
     _visibleMonth = DateTime(now.year, now.month);
     _selectedDate = DateTime(now.year, now.month, now.day);
+    Future.microtask(() {
+      if (mounted) context.read<GoalsProvider>().loadAll();
+    });
   }
 
   @override
@@ -140,20 +143,36 @@ class _MonthHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        IconButton(onPressed: onPrevious, icon: const Icon(Icons.chevron_left)),
-        Expanded(
-          child: Text(
-            DateFormat('MMMM yyyy').format(visibleMonth),
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF01C38D),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: onPrevious,
+            icon: const Icon(Icons.chevron_left, color: Colors.white),
           ),
-        ),
-        IconButton(onPressed: onNext, icon: const Icon(Icons.chevron_right)),
-      ],
+          Expanded(
+            child: Text(
+              DateFormat('MMMM yyyy').format(visibleMonth),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: onNext,
+            icon: const Icon(Icons.chevron_right, color: Colors.white),
+          ),
+        ],
+      ),
     );
   }
 }

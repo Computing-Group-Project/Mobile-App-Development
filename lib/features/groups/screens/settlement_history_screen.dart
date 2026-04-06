@@ -38,21 +38,21 @@ class SettlementHistoryScreen extends StatelessWidget {
                 child: ListTile(
                   leading: Icon(
                     Icons.receipt_long,
-                    color: s.isPartial ? Colors.orange : Colors.green,
+                    color: s.isPartial ? Colors.orange : Theme.of(context).colorScheme.primary,
                   ),
                   title: Text('${s.fromName} → ${s.toName}'),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Amount: \$${s.amount.toStringAsFixed(2)}'),
-                      Text('Date: ${s.createdAt.toLocal()}'),
+                      Text('Amount: LKR ${s.amount.toStringAsFixed(0)}'),
+                      Text('Date: ${s.createdAt.toLocal().toString().substring(0, 10)}'),
                     ],
                   ),
                   trailing: Text(
                     s.isPartial ? 'Partial' : 'Full',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: s.isPartial ? Colors.orange : Colors.green,
+                      color: s.isPartial ? Colors.orange : Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
