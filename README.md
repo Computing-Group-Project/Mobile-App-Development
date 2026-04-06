@@ -18,14 +18,14 @@ The fastest way to run FundFlow is to install the pre-built APK — no Flutter o
    ```
 4. Open **FundFlow** from the app drawer
 
-### Demo Account
+### Demo Accounts
 
-Use the following credentials to log in with pre-existing data:
+| Account | Email | Password | Purpose |
+|---|---|---|---|
+| John Doe | `jdoe@email.com` | `password` | **Primary account** — has transactions, budgets, goals, and group data |
+| A Smith | `asmith@email.com` | `password` | Secondary account — used to demonstrate group expense splitting between two users |
 
-| Field | Value |
-|---|---|
-| Email | `demo@fundflow.com` |
-| Password | `Demo1234!` |
+Log in as **John Doe** to see the full app experience. Log in as **A Smith** to test group interactions from a second user's perspective.
 
 > The AI Coach feature requires a Gemini API key — this is baked into the APK and works out of the box. The key is also provided separately in the report.
 

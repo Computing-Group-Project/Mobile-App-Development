@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
-import '../../../core/services/demo_data_seeder.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -209,51 +208,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 color: theme.colorScheme.primary,
               ),
             ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.science_outlined),
-            title: const Text('Load Demo Data'),
-            subtitle: const Text('For testing only — replaces all existing data'),
-            onTap: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: const Text('⚠ Demo Use Only'),
-                  content: const Text(
-                    'This will DELETE all your existing transactions, goals, budgets, wishlist items and financial events, then replace them with sample data.\n\nThis is intended for testing and demonstration purposes only.',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => ctx.pop(false),
-                      child: const Text('Cancel'),
-                    ),
-                    FilledButton(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.red,
-                      ),
-                      onPressed: () => ctx.pop(true),
-                      child: const Text('Clear & Load Demo'),
-                    ),
-                  ],
-                ),
-              );
-              if (confirmed == true && context.mounted) {
-                try {
-                  await DemoDataSeeder().clearAndSeed();
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Demo data loaded')),
-                    );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: $e')),
-                    );
-                  }
-                }
-              }
-            },
           ),
           ListTile(
             leading: Icon(Icons.logout, color: theme.colorScheme.error),
