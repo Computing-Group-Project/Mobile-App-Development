@@ -18,8 +18,15 @@ class _WishlistPlannerScreenState extends State<WishlistPlannerScreen> {
   @override
   void initState() {
     super.initState();
-    final budget = context.read<GoalsProvider>().monthlyWishlistBudget;
-    _budgetController = TextEditingController(text: budget.toStringAsFixed(0));
+    _budgetController = TextEditingController();
+    Future.microtask(() async {
+      final provider = context.read<GoalsProvider>();
+      await provider.loadAll();
+      if (mounted) {
+        _budgetController.text =
+            provider.monthlyWishlistBudget.toStringAsFixed(0);
+      }
+    });
   }
 
   @override
@@ -63,7 +70,7 @@ class _WishlistPlannerScreenState extends State<WishlistPlannerScreen> {
                           decimal: true,
                         ),
                         decoration: const InputDecoration(
-                          prefixText: 'LKR ',
+                          prefix: Text('LKR ', style: TextStyle(fontSize: 14)),
                           hintText: 'Amount available each month',
                         ),
                         onSubmitted: (_) => _applyBudget(provider),
@@ -129,7 +136,7 @@ class _WishlistPlannerScreenState extends State<WishlistPlannerScreen> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: const InputDecoration(
               labelText: 'Amount',
-              prefixText: 'LKR ',
+              prefix: Text('LKR ', style: TextStyle(fontSize: 14)),
             ),
           ),
           actions: [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../providers/analytics_provider.dart';
 import '../widgets/category_pie_chart.dart';
@@ -17,9 +18,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
   void initState() {
     super.initState();
-    // Load data when screen opens
-    final provider = context.read<AnalyticsProvider>();
-    Future.microtask(() => provider.loadTransactions());
+    Future.microtask(
+        () => context.read<AnalyticsProvider>().loadTransactions());
   }
 
   @override
@@ -39,37 +39,30 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Summary Cards ──────────────────────────────
                   Row(
                     children: [
-                      _summaryCard(
-                        'Income',
-                        provider.totalIncome,
-                        Colors.green,
+                      _SummaryCard(
+                        title: 'Income',
+                        amount: provider.totalIncome,
+                        color: const Color(0xFF01C38D),
+                        icon: Icons.north_east_rounded,
                       ),
                       const SizedBox(width: 12),
-                      _summaryCard(
-                        'Expenses',
-                        provider.totalExpense,
-                        Colors.red,
+                      _SummaryCard(
+                        title: 'Expenses',
+                        amount: provider.totalExpense,
+                        color: const Color(0xFFE05C6A),
+                        icon: Icons.south_east_rounded,
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-
-                  // ── Insights ───────────────────────────────────
                   const SpendingInsights(),
                   const SizedBox(height: 16),
-
-                  // ── Pie Chart ──────────────────────────────────
                   const CategoryPieChart(),
                   const SizedBox(height: 16),
-
-                  // ── Bar Chart ──────────────────────────────────
                   const IncomeExpenseBarChart(),
                   const SizedBox(height: 16),
-
-                  // ── Line Graph ─────────────────────────────────
                   const SpendingTrendLine(),
                   const SizedBox(height: 16),
                 ],
@@ -77,28 +70,58 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             ),
     );
   }
+}
 
-  Widget _summaryCard(String title, double amount, Color color) {
+class _SummaryCard extends StatelessWidget {
+  final String title;
+  final double amount;
+  final Color color;
+  final IconData icon;
+
+  const _SummaryCard({
+    required this.title,
+    required this.amount,
+    required this.color,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final formatted = NumberFormat('#,##0', 'en_US').format(amount);
+
     return Expanded(
       child: Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                children: [
+                  Icon(icon, size: 14, color: color),
+                  const SizedBox(width: 4),
+                  Text(
+                    title,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
               Text(
-                title,
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                'LKR $formatted',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
-                'Rs. ${amount.toStringAsFixed(0)}',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: color,
+                'this month',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ],

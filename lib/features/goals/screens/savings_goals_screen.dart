@@ -5,8 +5,21 @@ import 'package:provider/provider.dart';
 import '../models/savings_goal.dart';
 import '../providers/goals_provider.dart';
 
-class SavingsGoalsScreen extends StatelessWidget {
+class SavingsGoalsScreen extends StatefulWidget {
   const SavingsGoalsScreen({super.key});
+
+  @override
+  State<SavingsGoalsScreen> createState() => _SavingsGoalsScreenState();
+}
+
+class _SavingsGoalsScreenState extends State<SavingsGoalsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      if (mounted) context.read<GoalsProvider>().loadAll();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +31,37 @@ class SavingsGoalsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Savings Goals')),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAddGoalSheet(context),
+        icon: const Icon(Icons.add),
+        label: const Text('New Goal'),
+      ),
       body: Consumer<GoalsProvider>(
         builder: (context, provider, _) {
           final goals = provider.goals;
+
+          if (goals.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.flag_outlined,
+                      size: 56,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  const SizedBox(height: 12),
+                  Text('No goals yet',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant)),
+                  const SizedBox(height: 4),
+                  Text('Tap + to create your first savings goal',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant)),
+                ],
+              ),
+            );
+          }
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -47,6 +88,18 @@ class SavingsGoalsScreen extends StatelessWidget {
     );
   }
 
+  void _showAddGoalSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => const _AddGoalSheet(),
+    );
+  }
+
   Future<void> _showContributionDialog(
     BuildContext context, {
     required SavingsGoal goal,
@@ -57,6 +110,7 @@ class SavingsGoalsScreen extends StatelessWidget {
 
     await showDialog<void>(
       context: context,
+      barrierDismissible: true,
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setState) {
@@ -72,7 +126,7 @@ class SavingsGoalsScreen extends StatelessWidget {
                     ),
                     decoration: const InputDecoration(
                       labelText: 'Amount',
-                      prefixText: 'LKR ',
+                      prefix: const Text('LKR ', style: TextStyle(fontSize: 14)),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -153,8 +207,6 @@ class SavingsGoalsScreen extends StatelessWidget {
       },
     );
 
-    amountController.dispose();
-    noteController.dispose();
   }
 }
 
@@ -302,6 +354,206 @@ class _GoalCard extends StatelessWidget {
                   ),
                 ),
             ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AddGoalSheet extends StatefulWidget {
+  const _AddGoalSheet();
+
+  @override
+  State<_AddGoalSheet> createState() => _AddGoalSheetState();
+}
+
+class _AddGoalSheetState extends State<_AddGoalSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController();
+  final _amountController = TextEditingController();
+  DateTime _targetDate = DateTime.now().add(const Duration(days: 90));
+  String _selectedIcon = 'flag';
+
+  static const _icons = {
+    'flag': Icons.flag,
+    'laptop': Icons.laptop_mac,
+    'flight': Icons.flight_takeoff,
+    'shield': Icons.health_and_safety,
+    'home': Icons.home_outlined,
+    'car': Icons.directions_car_outlined,
+    'school': Icons.school_outlined,
+    'savings': Icons.savings_outlined,
+  };
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final goal = SavingsGoal(
+      id: '',
+      title: _titleController.text.trim(),
+      targetAmount: double.parse(_amountController.text),
+      currentAmount: 0,
+      targetDate: _targetDate,
+      iconKey: _selectedIcon,
+    );
+
+    await context.read<GoalsProvider>().addGoal(goal);
+    if (mounted) {
+      Navigator.of(context).pop();
+      context.read<GoalsProvider>().loadAll();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final fmt = DateFormat('MMM d, yyyy');
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text('New Goal',
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _titleController,
+              decoration: InputDecoration(
+                labelText: 'Goal Name',
+                hintText: 'e.g., New Laptop',
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Enter a name' : null,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _amountController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: 'Target Amount',
+                prefix: const Text('LKR ', style: TextStyle(fontSize: 14)),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+              validator: (v) {
+                if (v == null || v.isEmpty) return 'Enter an amount';
+                if (double.tryParse(v) == null) return 'Invalid amount';
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: _targetDate,
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime(2030),
+                );
+                if (picked != null) setState(() => _targetDate = picked);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 14),
+                decoration: BoxDecoration(
+                  border: Border.all(color: theme.colorScheme.outline),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today_outlined,
+                        size: 18, color: theme.colorScheme.primary),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Target Date',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant)),
+                        Text(fmt.format(_targetDate),
+                            style: theme.textTheme.bodyMedium),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text('Icon',
+                style: theme.textTheme.labelLarge
+                    ?.copyWith(fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: _icons.entries.map((entry) {
+                final selected = _selectedIcon == entry.key;
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedIcon = entry.key),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? theme.colorScheme.primary.withValues(alpha: 0.15)
+                          : theme.colorScheme.surfaceContainerHighest
+                              .withValues(alpha: 0.5),
+                      border: Border.all(
+                        color: selected
+                            ? theme.colorScheme.primary
+                            : Colors.transparent,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(entry.value,
+                        size: 22,
+                        color: selected
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.onSurfaceVariant),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: _save,
+                style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14)),
+                child: const Text('Save Goal'),
+              ),
+            ),
           ],
         ),
       ),

@@ -94,7 +94,7 @@ class ExpenseTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '\$${expense.totalAmount.toStringAsFixed(2)}',
+                      'LKR ${expense.totalAmount.toStringAsFixed(0)}',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: colorScheme.primary,
@@ -124,7 +124,7 @@ class ExpenseTile extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '\$${myShare.toStringAsFixed(2)}',
+                    'LKR ${myShare.toStringAsFixed(0)}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: iAmPayer ? Colors.green : Colors.orange,
@@ -155,10 +155,11 @@ class _SplitBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final (label, color) = switch (type) {
-      SplitType.equal => ('Equal', Colors.blue),
-      SplitType.custom => ('Custom', Colors.purple),
-      SplitType.percentage => ('Percent', Colors.teal),
+      SplitType.equal => ('Equal', theme.colorScheme.primary),
+      SplitType.custom => ('Custom', theme.colorScheme.secondary),
+      SplitType.percentage => ('Percent', theme.colorScheme.tertiary),
     };
 
     return Container(

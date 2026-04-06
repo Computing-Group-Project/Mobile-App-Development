@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Transaction {
   final String id;
   final String category;
   final double amount;
   final DateTime date;
-  final String type; // "income" or "expense"
+  final String type; // 'income' or 'expense'
   final String description;
 
   Transaction({
@@ -15,27 +17,15 @@ class Transaction {
     required this.description,
   });
 
-  // Convert Firestore data to Transaction object (use later when real data is ready)
-  factory Transaction.fromMap(Map<String, dynamic> map) {
+  factory Transaction.fromDoc(DocumentSnapshot doc) {
+    final map = doc.data() as Map<String, dynamic>;
     return Transaction(
-      id: map['id'] ?? '',
+      id: doc.id,
       category: map['category'] ?? '',
       amount: (map['amount'] ?? 0).toDouble(),
-      date: DateTime.parse(map['date']),
+      date: (map['date'] as Timestamp).toDate(),
       type: map['type'] ?? 'expense',
-      description: map['description'] ?? '',
+      description: map['title'] ?? map['description'] ?? '',
     );
-  }
-
-  // Convert Transaction object to Map (use later for Firestore)
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'category': category,
-      'amount': amount,
-      'date': date.toIso8601String(),
-      'type': type,
-      'description': description,
-    };
   }
 }

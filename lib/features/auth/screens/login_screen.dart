@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../../../core/widgets/fundflow_logo.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,16 +24,29 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
-    if (_formKey.currentState!.validate()) {
-      // TODO: Implement Firebase Auth login
-      context.go('/dashboard');
+  Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final provider = Provider.of<AuthProvider>(context, listen: false);
+    try {
+      await provider.login(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+      // GoRouter redirect handles navigation after successful auth
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isLoading = context.watch<AuthProvider>().isLoading;
 
     return Scaffold(
       body: SafeArea(
@@ -43,11 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(
-                    Icons.account_balance_wallet_rounded,
-                    size: 64,
-                    color: theme.colorScheme.primary,
-                  ),
+                  const Center(child: FundFlowLogo(size: 80)),
                   const SizedBox(height: 16),
                   Text(
                     'FundFlow',
@@ -115,11 +127,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 24),
                   FilledButton(
-                    onPressed: _handleLogin,
+                    onPressed: isLoading ? null : _handleLogin,
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: const Text('Log In'),
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Log In'),
                   ),
                   const SizedBox(height: 16),
                   TextButton(

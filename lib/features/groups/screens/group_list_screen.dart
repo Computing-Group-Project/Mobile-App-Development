@@ -12,7 +12,7 @@ class GroupListScreen extends StatelessWidget {
     final provider = context.watch<GroupProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Groups")),
+      appBar: AppBar(title: const Text('Groups')),
       body: StreamBuilder<List<GroupModel>>(
         stream: provider.groupsStream,
         builder: (_, s) {
@@ -21,7 +21,7 @@ class GroupListScreen extends StatelessWidget {
           }
           final groups = s.data!;
           if (groups.isEmpty) {
-            return const Center(child: Text("No groups yet"));
+            return const Center(child: Text('No groups yet'));
           }
 
           return ListView.builder(
@@ -29,11 +29,14 @@ class GroupListScreen extends StatelessWidget {
             itemBuilder: (_, i) {
               final g = groups[i];
               return Card(
-                margin: const EdgeInsets.all(10),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 child: ListTile(
-                  title: Text(g.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text("${g.members.length} members"),
+                  leading: CircleAvatar(
+                    backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                    child: Icon(Icons.group, color: Theme.of(context).colorScheme.primary),
+                  ),
+                  title: Text(g.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text('${g.members.length} member${g.members.length == 1 ? '' : 's'}'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/group-dashboard', extra: g),
                 ),
