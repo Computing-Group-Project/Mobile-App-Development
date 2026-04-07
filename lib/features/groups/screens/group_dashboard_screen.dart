@@ -69,8 +69,16 @@ class GroupDashboardScreen extends StatelessWidget {
             onSelected: (value) {
               if (value == 'leave') _confirmLeave(context);
               if (value == 'delete') _confirmDelete(context);
+              if (value == 'history') context.push('/settlement-history', extra: group);
             },
             itemBuilder: (_) => [
+              const PopupMenuItem(value: 'history', child: Row(
+                children: [
+                  Icon(Icons.history_rounded),
+                  SizedBox(width: 10),
+                  Text('Settlement History'),
+                ],
+              )),
               const PopupMenuItem(value: 'leave', child: Row(
                 children: [
                   Icon(Icons.exit_to_app_rounded),
@@ -187,6 +195,11 @@ class GroupDashboardScreen extends StatelessWidget {
                                               ?.copyWith(
                                                   color: theme.colorScheme
                                                       .onSurfaceVariant)),
+                                      const SizedBox(height: 8),
+                                      FilledButton.tonal(
+                                        onPressed: () => context.push('/settle-up', extra: group),
+                                        child: const Text('Settle Up'),
+                                      ),
                                     ],
                                   ),
                                 ],
